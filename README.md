@@ -20,32 +20,33 @@ A multi-threaded queue for storing a finite number of elements. Uses a lock-free
 
 The following table list the tools and respective versions used during development of this project. Other versions *probably* will work as well, but they haven't been tested.
 
-  | Purpose         | Tool name                                                       | Version  |
-  | --------------- | --------------------------------------------------------------- | -------  |
-  | Build Generator | `Cmake`                                                         | `3.24.2` |
-  | Compiler        | `g++`                                                           | `12.2.0` |
-  | Documentation   | `Doxygen`                                                       | `1.9.3`  |
-  | Test Suite      | `googletest` (This should be automatically downloaded by cmake) | `1.12.1` |
+  | Purpose         | Tool name    | Version  |
+  | --------------- | ------------ | -------  |
+  | Build Generator | `Cmake`      | `3.24.2` |
+  | Compiler        | `g++`        | `12.2.0` |
+  | Documentation   | `Doxygen`    | `1.9.3`  |
+  | Test Suite      | `googletest` | `1.12.1` |
+
+  Note: `googletest` should be automatically downloaded by cmake and not require an external download.
 
 
 # Building:
 
 From the directory that contains the `CMakeLists.txt`, run the following commands:
-
-  `$ cmake -S . -B build`
-  `$ cd build && make`
+  * `$ cmake -S . -B build`
+  * `$ cd build && make`
 
 
 # Unit tests:
 
 From within the `build` directory run the command:
-  `$ ./test_pairs`
+  * `$ ./test_pairs`
 
 ### Note:
 
-Sometimes the tests will fail not because of the logic of the functions, but because the push and pop operations have a timeout behaviour.
+Sometimes the tests will fail not because of the logic of the functions, but because the push and pop operations have a timeout behaviour. As such, it is dificult to correctly assert the expected behaviour.
 
-As such, it is dificult to correctly assert the expected behaviour. As a workaround, we calculate the worst possible outcome and compare it with the test's execution. We then see if it is within an acceptable margin of error. This margin can be changed by editing the `acceptableMargin` variable in file `/tests/single.cpp`, which, for now, is set to a 1% margin of error.
+As a workaround, we calculate the worst possible outcome and compare it with the test's execution. We then see if it is within an acceptable margin of error. This margin can be changed by editing the `acceptableMargin` variable in file `/tests/single.cpp`, which, for now, is set to a 1% margin of error.
 
 Another possibility would be to increase the amount of tries before giving out, but that quickly increases the test times.
 
