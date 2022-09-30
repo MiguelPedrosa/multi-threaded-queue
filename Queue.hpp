@@ -3,6 +3,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cstddef>
 #include <iostream>
 #include <optional>
@@ -16,14 +17,20 @@ template <typename Type, std::size_t Capacity> struct Queue {
 
     static constexpr std::size_t Mask = Capacity - 1;
 
-    void Push(Type element) {
+    bool Push(Type element) {
         std::size_t in;
+        using namespace std::chrono_literals;
+        auto start = std::chrono::high_resolution_clock::now();
 
         while (true) {
             in = inIndex;
             bool hasContent{storage[in]};
 
             while (in - outIndex == Capacity && !storage[in]) {
+                auto current = std::chrono::high_resolution_clock::now();
+                if (current - start >= 200ms) {
+                    return false;
+                }
                 std::this_thread::yield();
             }
 
@@ -36,16 +43,23 @@ template <typename Type, std::size_t Capacity> struct Queue {
         }
 
         storage[in] = element;
+        return true;
     }
 
-    Type Pop() {
+    std::optional<Type> Pop() {
         std::size_t out{};
+        using namespace std::chrono_literals;
+        auto start = std::chrono::high_resolution_clock::now();
 
         while (true) {
             out = outIndex;
             const bool hasContent{storage[out]};
 
             while (out == inIndex && !hasContent) {
+                auto current = std::chrono::high_resolution_clock::now();
+                if (current - start >= 200ms) {
+                    return std::nullopt;
+                }
                 std::this_thread::yield();
             }
 
