@@ -2,7 +2,7 @@
 #include <iostream>
 
 int main() {
-    Queue<int> queue(2);
+    Queue<int, 4> queue;
 
     queue.Push(1);
     queue.Push(2);

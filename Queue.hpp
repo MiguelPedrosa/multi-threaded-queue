@@ -3,26 +3,28 @@
 
 #include <queue>
 
-template <typename T> struct Queue {
-    Queue(unsigned int size) : capacity{size}, storage{} {}
-    void Push(T element) {
+template <typename Type, std::size_t Capacity> struct Queue {
+
+    static_assert((Capacity & (Capacity - 1)) == 0,
+                  "Queue must have a size that is a power of 2.");
+
+    void Push(Type element) {
         /* We cannot insert an element if we already excedded the maximum
          * capacity */
-        if (capacity <= storage.size()) {
+        if (Capacity <= storage.size()) {
             return;
         }
         storage.push(element);
     }
-    T Pop() {
-        T element = storage.front();
+    Type Pop() {
+        Type element = storage.front();
         storage.pop();
         return element;
     }
     int Count() const { return storage.size(); }
-    int Size() const { return capacity; }
+    constexpr int Size() const { return Capacity; }
 
   private:
-    const unsigned int capacity;
-    std::queue<T> storage;
+    std::queue<Type> storage;
 };
 #endif // QUEUE_HPP
