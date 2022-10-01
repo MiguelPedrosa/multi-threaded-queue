@@ -55,16 +55,16 @@ Sometimes the tests will fail not because of the logic of the functions but beca
 
 We calculate the worst possible outcome and compare it with the test's execution as a workaround. We then see if it is within an acceptable margin of error. We can change this margin by editing the `acceptableMargin` variable in file `/tests/single.cpp`, which, for now, is set to a 2% margin of error.
 
-Another possibility would be to increase the number of tries before giving out, which quickly raises the test times.
+One possibility would be to increase the number of tries before giving up, which quickly raises the test times. Another possibility was to wrap the timeout portions of the code with a preprocessor macro that could be toggled during compilations. This approach wasn't used because `CMake` does not support multiple configurations per project when using 'Unix Makefiles' and these were prefered as they simplify requirements for using the project.
 
 
 # Design Choices:
 
 Because I want to reuse this code in other projects, the design of the container was affected by a few personal decisions:
 
- - I wanted to avoid a container that used mutexes correctly to implement multithreading. We based the project's design on the [UniQ Multithreading Libray](https://github.com/bittnkr/uniq), which implements a **lock-free circular buffered queue**, with a few modifications of my own.
- - I wanted to avoid memory allocations; as such, the container uses a compile-time constant for dictating its storage size. My uses don't require a resizeable container. This approach should reduce memory consumption as the container can be just a local variable.
- - The container's capacity has to be a power of 2. This constraint helps to prevent the internal indexes from remaining below the storage's capacity, and this method simplifies the implementation.
+ - I wanted to avoid a container that used mutexes to implement multithreading. We based the project's design on the [UniQ Multithreading Libray](https://github.com/bittnkr/uniq), which implements a **lock-free circular buffered queue**, with a few modifications of my own.
+ - I wanted to avoid memory allocations; as such, the container uses a compile-time constant for dictating its storage size. My uses don't require a resizeable container, so this approach should reduce memory consumption as the container can reside in a stack variable.
+ - The container's capacity has to be a power of 2. This constraint helps to ensure the internal indexes' values are always below the storage's capacity, and this method simplifies the implementation.
 
 
 # Possible improvements:
