@@ -10,19 +10,13 @@
 /**
  * @brief Multi-threaded queue to store a finite number of elements
  * @details The project uses a circular buffer to implement a lockless queue
- * for multi-threaded storage of any type of elements. The pop operation blocks
- * if there isn't any element up to 200ms and the push operation blocks if the
- * storage is full for the same duration. The capacity has to be a power of 2 as
- * this facilitate the implementation and there's a static check as a reminder.
- * Since the capacity is known at compile time, we can use a fixed sized
- * container as storage for our elements in the form of std::array. There are
- * two atomic indexes: one that contains the next position to insert an element
- * and one that indicates the next item to pop. The storage will contain
- * elements from the removal index to the insertion index and both values are
- * always lower than the capacity. If both indexes point to the same value, then
- * we don't know if the storage is empty or full. To solve this, we wrap each
- * element in storage with std::optional to register if the element is present
- * or not.
+ * for multi-threaded storage of any type of elements. There are two atomic
+ * indexes: one that contains the next position to insert an element and one
+ * that indicates the next item to pop. The storage will contain elements from
+ * the removal index to the insertion index and both values are always lower
+ * than the Capacity. If both indexes point to the same value, then we don't
+ * know if the storage is empty or full. To solve this, we wrap each element in
+ * storage with std::optional to register if the element is present or not.
  *
  * @tparam Type The type of the elements we intend to store.
  * @tparam Capacity The size of the queue. Has to be a power of 2.
@@ -63,6 +57,8 @@ template <typename Type, std::size_t Capacity> struct Queue {
             in = inIndex;
             bool hasContent{storage[in]};
 
+	    /* outIndex is an atomic, so it's value will update after another
+	     * thread calls Pop(). */
             while (in - outIndex == Capacity && !storage[in]) {
                 auto currentTime = std::chrono::high_resolution_clock::now();
                 if (currentTime - startTime >= 200ms) {
@@ -104,6 +100,8 @@ template <typename Type, std::size_t Capacity> struct Queue {
             out = outIndex;
             bool hasContent{storage[out]};
 
+	    /* inIndex is an atomic, so it's value will update after another
+	     * thread calls Push(). */
             while (out == inIndex && !hasContent) {
                 auto currentTime = std::chrono::high_resolution_clock::now();
                 if (currentTime - startTime >= 200ms) {
