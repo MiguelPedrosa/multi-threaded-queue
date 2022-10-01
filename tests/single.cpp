@@ -66,7 +66,7 @@ long basicTest(long itemCount, int maxTries, int threadPairs) {
     return total;
 }
 
-constexpr double acceptableMargin = 0.01;
+constexpr double acceptableMargin = 0.02;
 
 /* Simple and base line test */
 TEST(TestQueue, BasicTest) {
